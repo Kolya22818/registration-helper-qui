@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Testowa Rejestracja - Urząd Wojewódzki</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: white;
+      color: #000;
+      margin: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+    }
+    input[type="text"], input[type="email"] {
+      width: 100%;
+      padding: 5px;
+      font-size: 14px;
+    }
+    .info {
+      font-size: 14px;
+      margin-bottom: 15px;
+    }
+    .checkbox {
+      margin-top: 15px;
+    }
+    button, .link-button {
+      margin-top: 15px;
+      padding: 8px 16px;
+      font-size: 14px;
+      background: #4285f4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      border-radius: 4px;
+    }
+    .link-button {
+      background: none;
+      color: blue;
+      text-decoration: underline;
+      padding: 0;
+      border: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>URZĄD WOJEWÓDZKI W WARSZAWIE</h2>
+
+    <div class="info">
+      Uwaga: uruchamianie JavaScript jest wyłączone w przeglądarce lub dla tej strony. Może to uniemożliwić udzielenie odpowiedzi na niektóre pytania tej ankiety.
+    </div>
+
+    <label>Kod wniosku z systemu INPOL</label>
+    <input type="text" placeholder="np. 00001234">
+    <div class="info">numer składa się z 8 cyfr, jeśli jest krótszy uzupełnij zerami na początku</div>
+
+    <label>Kod wniosku z portalu MOS</label>
+    <input type="text" placeholder="np. 00005678">
+    <div class="info">numer składa się z 8 cyfr, jeśli jest krótszy uzupełnij zerami na początku</div>
+
+    <label>Imię cudzoziemca</label>
+    <input type="text">
+
+    <label>Nazwisko cudzoziemca</label>
+    <input type="text">
+
+    <label>Data urodzenia</label>
+    <input type="text" placeholder="dd.mm.rrrr">
+
+    <label>Numer paszportu</label>
+    <input type="text">
+
+    <label>Obywatelstwo</label>
+    <input type="text">
+
+    <label>Numer telefonu w RP</label>
+    <input type="text" placeholder="+48">
+
+    <label>Adres e-mail</label>
+    <input type="email">
+
+    <label>Jeśli posiadasz pełnomocnika podaj jego imię i nazwisko</label>
+    <input type="text">
+
+    <div class="checkbox">
+      <input type="checkbox" id="regulamin">
+      <label for="regulamin">Akceptuję regulamin</label>
+    </div>
+
+    <button>Wyślij</button>
+    <br>
+    <button class="link-button">Zakończ i usuń odpowiedzi</button>
+    <br>
+    <button class="link-button">Zamknij</button>
+    <br>
+    <button>Anuluj</button>
+    <button>Wyczyść</button>
+  </div>
+</body>
+</html>
