@@ -133,7 +133,7 @@ def next_person():
 
 # === Обработка мыши ===
 def on_click(x, y, button, pressed):
-    global last_click_time
+    global last_click_time, current_field
     if not pressed:
         return
 
@@ -148,6 +148,16 @@ def on_click(x, y, button, pressed):
             data = widget.get()
             pyperclip.copy(data)
             print(f"📋 Скопировано: {data}")
+            # Сброс цвета для всех полей
+            for entry in entry_widgets.values():
+                entry.config(bg="white")
+            # Подсвечиваем кликнутое поле
+            widget.config(bg="lightgreen")
+            # Определяем, к какому ключу относится виджет, и обновляем current_field
+            for key, entry in entry_widgets.items():
+                if entry == widget:
+                    current_field = fields_order.index(key)
+                    break
     else:
         now = time.time()
         if now - last_click_time <= click_threshold and auto_mode:
