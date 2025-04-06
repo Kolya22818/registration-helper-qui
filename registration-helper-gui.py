@@ -1,102 +1,114 @@
 import tkinter as tk
-from tkinter import messagebox
 import pandas as pd
 import pyperclip
 import pyautogui
-import time
-from functools import partial
 import json
+import threading
+import time
+from pynput import mouse
+from tkinter import messagebox
 
-# Загрузка данных из локального JSON-файла
-json_file_path = "users.json"
+# Попытка загрузить данные
 try:
-    with open(json_file_path, "r", encoding="utf-8") as f:
+    with open("users.json", "r", encoding="utf-8") as f:
         data = json.load(f)
     df = pd.DataFrame(data)
 except Exception as e:
-    messagebox.showerror("Ошибка", f"Не удалось загрузить JSON-файл: {e}")
+    messagebox.showerror("Ошибка загрузки", f"Не удалось загрузить users.json:\n{e}")
     exit()
 
-current_index = 0
-
-def update_fields():
-    if 0 <= current_index < len(df):
-        person = df.iloc[current_index]
-        inpol_var.set(person['INPOL'])
-        mos_var.set(person['MOS'])
-        name_var.set(person['Имя'])
-        surname_var.set(person['Фамилия'])
-        birth_var.set(person['Дата рождения'])
-        passport_var.set(person['Номер паспорта'])
-        citizen_var.set(person['Гражданство'])
-        phone_var.set(person['Телефон'])
-        email_var.set(person['Email'])
-        position_label_var.set(f"Пользователь {current_index + 1} из {len(df)}")
-
-def paste_field(var):
-    value = var.get()
-    pyperclip.copy(value)
-    time.sleep(1.00)
-    pyautogui.hotkey("ctrl", "v")
-
-def next_person():
-    global current_index
-    if current_index < len(df) - 1:
-        current_index += 1
-        update_fields()
-
-def prev_person():
-    global current_index
-    if current_index > 0:
-        current_index -= 1
-        update_fields()
-    else:
-        messagebox.showinfo("Начало", "Вы на первом пользователе.")
+fields_order = ["INPOL", "MOS", "Имя", "Фамилия", "Дата рождения", "Номер паспорта", "Гражданство", "Телефон", "Email"]
+current_person = 0
+current_field = 0
+auto_mode = False
 
 # GUI
 root = tk.Tk()
-root.title("Регистратор")
-root.geometry("520x550")
-root.attributes('-topmost', True)
+root.title("КЧП Регистратор")
+root.geometry("340x360")
+root.wm_attributes("-topmost", 1)
+root.wm_attributes("-alpha", 0.9)
 
-inpol_var = tk.StringVar()
-mos_var = tk.StringVar()
-name_var = tk.StringVar()
-surname_var = tk.StringVar()
-birth_var = tk.StringVar()
-passport_var = tk.StringVar()
-citizen_var = tk.StringVar()
-phone_var = tk.StringVar()
-email_var = tk.StringVar()
-position_label_var = tk.StringVar()
+field_vars = {}
+entry_widgets = {}
 
-fields = [
-    ("Kod z systemu INPOL", inpol_var),
-    ("Kod z portalu MOS", mos_var),
-    ("Имя", name_var),
-    ("Фамилия", surname_var),
-    ("Дата рождения", birth_var),
-    ("Паспорт", passport_var),
-    ("Гражданство", citizen_var),
-    ("Телефон", phone_var),
-    ("Email", email_var)
-]
+def update_display():
+    for key in fields_order:
+        entry_widgets[key].config(bg="white")
+    if current_person < len(df):
+        person = df.iloc[current_person]
+        for key in fields_order:
+            value = str(person.get(key, ""))
+            field_vars[key].set(value)
+        current_field_name = fields_order[current_field]
+        current_value = str(person.get(current_field_name, ""))
+        pyperclip.copy(current_value)
+        entry_widgets[current_field_name].config(bg="lightgreen")
+        print(f"[Скопировано] {current_field_name}: {current_value}")
+    else:
+        status_label.config(text="✅ Все пользователи обработаны.")
+        auto_mode_off()
 
-for i, (label, var) in enumerate(fields):
-    tk.Label(root, text=label).grid(row=i, column=0, sticky="w")
-    tk.Entry(root, textvariable=var, width=30).grid(row=i, column=1)
-    tk.Button(root, text="Вставить", command=partial(paste_field, var)).grid(row=i, column=2)
+def advance():
+    global current_field, current_person
+    current_field += 1
+    if current_field >= len(fields_order):
+        current_field = 0
+        current_person += 1
+        if current_person >= len(df):
+            print("✅ Все пользователи обработаны.")
+            return
+    update_display()
 
-# Индикатор текущей позиции
-position_label = tk.Label(root, textvariable=position_label_var, font=("Arial", 10, "bold"))
-position_label.grid(row=len(fields), column=0, columnspan=3, pady=(5, 0))
+def start_auto_mode():
+    global auto_mode
+    auto_mode = True
+    start_button.config(state="disabled")
+    stop_button.config(state="normal")
+    status_label.config(text="🔛 Автовставка активна")
+    update_display()
 
-# Кнопки управления
-button_frame = tk.Frame(root)
-button_frame.grid(row=len(fields)+1, column=0, columnspan=3, pady=10)
+def auto_mode_off():
+    global auto_mode
+    auto_mode = False
+    start_button.config(state="normal")
+    stop_button.config(state="disabled")
+    status_label.config(text="⏸ Автовставка остановлена")
 
-tk.Button(button_frame, text="← Назад", command=prev_person, bg="lightblue").pack(side="left", padx=5)
-tk.Button(button_frame, text="Следующий →", command=next_person, bg="lightgreen").pack(side="right", padx=5)
+# Обработка клика мыши
+def on_click(x, y, button, pressed):
+    if pressed and auto_mode and current_person < len(df):
+        try:
+            time.sleep(0.1)
+            pyautogui.hotkey("ctrl", "v")
+            threading.Timer(0.2, advance).start()
+        except Exception as e:
+            print(f"[Ошибка вставки] {e}")
 
-update_fields()
+# Слушатель мыши в отдельном потоке
+def start_mouse_listener():
+    listener = mouse.Listener(on_click=on_click)
+    listener.daemon = True
+    listener.start()
+
+threading.Thread(target=start_mouse_listener, daemon=True).start()
+
+# Интерфейс
+for i, key in enumerate(fields_order):
+    tk.Label(root, text=key).grid(row=i, column=0, sticky="w")
+    var = tk.StringVar()
+    entry = tk.Entry(root, textvariable=var, width=25)
+    entry.grid(row=i, column=1)
+    field_vars[key] = var
+    entry_widgets[key] = entry
+
+start_button = tk.Button(root, text="▶ Запустить", command=start_auto_mode, bg="lightgreen", font=("Arial", 10, "bold"))
+start_button.grid(row=len(fields_order), column=0, pady=10)
+
+stop_button = tk.Button(root, text="⏹ Стоп", command=auto_mode_off, bg="tomato", font=("Arial", 10, "bold"), state="disabled")
+stop_button.grid(row=len(fields_order), column=1, pady=10)
+
+status_label = tk.Label(root, text="⏸ Ожидает запуска", font=("Arial", 9, "italic"))
+status_label.grid(row=len(fields_order)+1, column=0, columnspan=2)
+
 root.mainloop()
