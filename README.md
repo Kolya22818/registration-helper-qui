@@ -49,15 +49,15 @@ python registration-helper-gui.py
 
 [
   {
-    "INPOL": "00760967",
-    "MOS": "42545971",
-    "Имя": "Rustamjon",
-    "Фам": "Kamalov",
-    "Др": "16.05.1972",
-    "Паспорт": "Fa0507449",
-    "Граж": "Uzbekistan",
+    "INPOL": "0123456",
+    "MOS": "01234567",
+    "Имя": "artem",
+    "Фам": "Szachilow",
+    "Др": "11.03.1999",
+    "Паспорт": "AA01223456",
+    "Граж": "Tadzikistan",
     "Тел": "+48111111111",
-    "Email": "rustam@example.com"
+    "Email": "artem@example.com"
   }
 ]
 
