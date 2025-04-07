@@ -131,23 +131,11 @@ def next_person():
         current_field = 0
         update_display()
 
-# === Обработка мыши ===
-def on_click(x, y, button, pressed):
-    global last_click_time
-    if not pressed:
-        return
-
-    win_x = root.winfo_rootx()
-    win_y = root.winfo_rooty()
-    win_width = root.winfo_width()
-    win_height = root.winfo_height()
-
-    if win_x <= x <= win_x + win_width and win_y <= y <= win_y + win_height:
-        widget = root.winfo_containing(x, y)
-        if widget is not None and isinstance(widget, tk.Entry):
-            data = widget.get()
-            pyperclip.copy(data)
-            print(f"📋 Скопировано: {data}")
+def prev_person():
+    global current_index
+    if current_index > 0:
+        current_index -= 1
+        update_fields()
     else:
         now = time.time()
         if now - last_click_time <= click_threshold and auto_mode:
